@@ -1,6 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useRef } from "react";
+
+// Wake up Render backend on app load (free tier sleeps after inactivity)
+const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+fetch(`${API}/health`).catch(()=>{});
 import { authAPI, resumeAPI, interviewAPI, sessionsAPI, analyticsAPI, settingsAPI, token } from "./api";
 
 // ─────────────────────────────────────────────────────────────────────────────
