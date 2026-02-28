@@ -43,6 +43,13 @@ const QUESTIONS = {
     {id:3,q:"Describe RESTful API design principles and HTTP methods.",ref:"REST: stateless, uniform interface, resource-based URLs. Methods: GET (retrieve, idempotent), POST (create), PUT (full update), PATCH (partial), DELETE (remove). Status codes: 200, 201, 400, 401, 404, 500. HATEOAS for discoverability."},
     {id:4,q:"What is the difference between SQL and NoSQL databases?",ref:"SQL: relational, ACID, structured schema, vertical scaling. NoSQL types: Document (MongoDB), Key-Value (Redis), Column (Cassandra), Graph (Neo4j). NoSQL: flexible schema, horizontal scaling, eventual consistency. SQL for strong consistency; NoSQL for scale and flexibility."},
     {id:5,q:"Explain the SOLID principles in software design.",ref:"S: Single Responsibility. O: Open/Closed. L: Liskov Substitution. I: Interface Segregation. D: Dependency Inversion. These reduce coupling and improve maintainability and testability."},
+    {id:6,q:"What is the difference between concurrency and parallelism?",ref:"Concurrency: multiple tasks making progress by interleaving (single core). Parallelism: multiple tasks running simultaneously (multi-core). Concurrency is about structure; parallelism is about execution. Node.js is concurrent but not parallel; Go uses goroutines for both."},
+    {id:7,q:"Explain how a hash table works and how collisions are resolved.",ref:"Hash table maps keys to buckets via hash function. Collisions resolved by chaining (linked list at bucket) or open addressing (linear/quadratic probing). Load factor determines resize threshold. Average O(1) get/set; worst O(n) with many collisions."},
+    {id:8,q:"What is a microservices architecture and when would you use it?",ref:"Decompose app into small, independently deployable services. Benefits: independent scaling, tech diversity, fault isolation. Drawbacks: network latency, distributed system complexity, data consistency. Use when teams are large or services have very different scaling needs."},
+    {id:9,q:"Explain the concept of database indexing and when to use it.",ref:"Index is a data structure (B-tree, hash) that speeds up reads at cost of write overhead and storage. Use on columns used in WHERE, JOIN, ORDER BY. Avoid on low-cardinality or frequently updated columns. Composite indexes follow left-prefix rule."},
+    {id:10,q:"What is the difference between authentication and authorization?",ref:"Authentication: verifying who you are (JWT, OAuth, sessions). Authorization: verifying what you can do (RBAC, ABAC, ACL). Auth comes first. JWT is stateless auth; sessions are stateful. OAuth2 delegates auth to third-party providers."},
+    {id:11,q:"Explain the concept of caching and common caching strategies.",ref:"Caching stores frequently accessed data in fast storage. Strategies: Cache-aside (app manages), Write-through (sync write to cache+DB), Write-back (async), Read-through. Eviction: LRU, LFU, TTL. Redis/Memcached for distributed caching. CDN for static assets."},
+    {id:12,q:"What are design patterns and name a few commonly used ones?",ref:"Reusable solutions to common software problems. Creational: Singleton, Factory, Builder. Structural: Adapter, Decorator, Proxy. Behavioral: Observer, Strategy, Command. MVC/MVP/MVVM are architectural patterns. Use patterns to improve maintainability."},
   ],
   "Data Scientist":[
     {id:1,q:"Explain the bias-variance tradeoff.",ref:"Bias: error from wrong assumptions (underfitting). Variance: sensitivity to training noise (overfitting). Balance via cross-validation, regularization (L1/L2), ensemble methods — bagging reduces variance, boosting reduces bias."},
@@ -50,21 +57,40 @@ const QUESTIONS = {
     {id:3,q:"How would you handle a highly imbalanced dataset?",ref:"SMOTE oversampling, undersampling majority, class_weight='balanced', threshold tuning, F1/AUC-PR evaluation. Choice depends on false positive vs false negative cost in the domain."},
     {id:4,q:"Explain how gradient boosting works.",ref:"Sequential ensemble of weak learners. Each tree fits residual errors of previous ensemble. Gradient descent in function space. Key params: learning rate, tree depth, n_estimators. XGBoost/LightGBM add regularization and efficient splitting."},
     {id:5,q:"What is cross-validation and why is it important?",ref:"Estimates model generalization. K-fold: split into k parts, train on k-1, test on 1, repeat k times, average. Stratified K-fold preserves class distribution. Prevents overfitting to single train/test split. Used for hyperparameter tuning and model selection."},
+    {id:6,q:"Explain the difference between L1 and L2 regularization.",ref:"L1 (Lasso): adds sum of absolute weights, encourages sparsity, feature selection. L2 (Ridge): adds sum of squared weights, shrinks all weights, handles multicollinearity. Elastic Net combines both. Use L1 for sparse features, L2 when all features matter."},
+    {id:7,q:"What is PCA and when would you use it?",ref:"PCA reduces dimensionality by finding orthogonal axes of maximum variance. Projects data onto k principal components. Use for visualization, noise reduction, multicollinearity. Limitations: loses interpretability, assumes linear structure, sensitive to scale."},
+    {id:8,q:"How do you evaluate a classification model?",ref:"Accuracy (misleading for imbalanced). Precision: TP/(TP+FP). Recall: TP/(TP+FN). F1: harmonic mean. AUC-ROC: discrimination ability. Confusion matrix. Use precision when false positives costly (spam); recall when false negatives costly (cancer detection)."},
+    {id:9,q:"Explain the difference between bagging and boosting.",ref:"Bagging: parallel ensemble, trains on bootstrap samples, reduces variance (Random Forest). Boosting: sequential ensemble, each model focuses on previous errors, reduces bias (AdaBoost, XGBoost). Bagging more robust to outliers; boosting usually more accurate."},
+    {id:10,q:"What is feature engineering and why is it important?",ref:"Creating new features from raw data to improve model performance. Techniques: one-hot encoding, binning, log transform, interaction terms, date decomposition, TF-IDF for text. Often more impactful than model choice. Domain knowledge is key."},
   ],
   "Data Engineer":[
     {id:1,q:"What is the difference between ETL and ELT?",ref:"ETL: transform before loading — suits sensitive data, legacy systems. ELT: load raw then transform in DWH using SQL — suits cloud DWH (Snowflake, BigQuery). ELT more flexible for exploration; ETL better governance."},
     {id:2,q:"Explain data partitioning and why it matters.",ref:"Divides data into chunks for parallelism and query efficiency. Range, hash, list, composite partitioning. Benefits: partition pruning avoids full scans, parallelism speeds processing. Critical for Spark shuffle performance and BigQuery cost."},
-    {id:3,q:"What are the CAP theorem trade-offs?",ref:"Consistency, Availability, Partition Tolerance — only 2 of 3 achievable. CP: HBase, ZooKeeper. AP: Cassandra, DynamoDB. PACELC extends CAP to consider latency vs consistency even without partitions."},
+    {id:3,q:"What are the CAP theorem trade-offs?",ref:"Consistency, Availability, Partition Tolerance — only 2 of 3 achievable. CP: HBase, ZooKeeer. AP: Cassandra, DynamoDB. PACELC extends CAP to consider latency vs consistency even without partitions."},
+    {id:4,q:"Explain Apache Spark's architecture and how it differs from MapReduce.",ref:"Spark: in-memory processing, DAG execution engine, lazy evaluation, RDD/DataFrame/Dataset APIs. MapReduce: disk-based, two-stage, simpler model. Spark 10-100x faster for iterative algorithms. Spark has Streaming, MLlib, GraphX. MapReduce better for single-pass jobs."},
+    {id:5,q:"What is a data lake vs data warehouse?",ref:"Data Lake: raw data in native format, schema-on-read, cheap storage (S3/ADLS), for ML/exploration. Data Warehouse: structured, schema-on-write, optimized for analytics SQL (Snowflake/BigQuery/Redshift). Data Lakehouse combines both (Delta Lake, Iceberg)."},
+    {id:6,q:"How would you design a real-time data pipeline?",ref:"Kafka/Kinesis for ingestion → Stream processor (Flink/Spark Streaming) → Sink (Cassandra/Elasticsearch/DWH). Consider: exactly-once semantics, backpressure, late data handling, schema evolution. Monitor with consumer lag metrics."},
+    {id:7,q:"What is data lineage and why is it important?",ref:"Tracking data origin, movement, and transformations end-to-end. Important for debugging, compliance (GDPR), impact analysis, auditing. Tools: Apache Atlas, DataHub, OpenLineage. Column-level lineage shows field transformations."},
+    {id:8,q:"Explain the star schema vs snowflake schema.",ref:"Star schema: fact table + denormalized dimension tables, simpler queries, more storage. Snowflake: normalized dimensions reduce redundancy, complex joins. Star schema preferred for analytics performance. Both used in data warehouses."},
   ],
   "ML Engineer":[
     {id:1,q:"What is MLOps and its key components?",ref:"DevOps for ML. Components: data versioning (DVC), experiment tracking (MLflow/W&B), model registry, CI/CD, model serving (REST/gRPC), monitoring (data drift, model drift), feature stores, automated retraining."},
     {id:2,q:"Explain training vs inference challenges.",ref:"Training: compute-intensive, offline, uses GPUs, reproducibility critical. Inference: latency-sensitive, needs optimization (quantization, ONNX, distillation), must scale with load. Key challenge: training-serving skew and cold start latency."},
     {id:3,q:"How do you detect and handle model drift in production?",ref:"Data drift: input distribution shifts. Concept drift: feature-target relationship changes. Detection: KS test, PSI, JS divergence, performance monitoring. Handling: automated retraining, champion-challenger A/B testing, canary releases, feedback loops."},
+    {id:4,q:"What is a feature store and why is it used?",ref:"Centralized repository for ML features. Benefits: reuse across teams/models, consistent train-serve features, point-in-time correctness. Online store (low-latency, Redis) + offline store (historical, S3/BigQuery). Examples: Feast, Tecton, Databricks Feature Store."},
+    {id:5,q:"Explain model quantization and its trade-offs.",ref:"Reduces model precision (FP32→INT8/INT4). Benefits: smaller model, faster inference, less memory. Trade-offs: slight accuracy loss. Techniques: post-training quantization, quantization-aware training. Critical for edge deployment. Used in TensorFlow Lite, ONNX Runtime."},
+    {id:6,q:"How would you serve a machine learning model at scale?",ref:"REST API (FastAPI/Flask) or gRPC for low latency. Containerize with Docker, orchestrate with Kubernetes. Model server: TorchServe, TF Serving, Triton. Caching for repeated inputs. Batch inference for throughput. Monitor latency P99, error rate, prediction distribution."},
+    {id:7,q:"What is transfer learning and when should you use it?",ref:"Using pretrained model weights as starting point for new task. Use when: limited labeled data, similar domain to pretrained model, faster training needed. Fine-tune all layers (small dataset) or just head (large dataset, similar domain). BERT, ResNet common base models."},
   ],
   "Frontend Developer":[
     {id:1,q:"Explain controlled vs uncontrolled components in React.",ref:"Controlled: React state is source of truth, value from props, onChange updates state. Uncontrolled: DOM manages state via refs. Controlled preferred for complex validation, conditional fields, synchronized inputs."},
     {id:2,q:"What is the Virtual DOM and how does React reconciliation work?",ref:"VDOM is lightweight JS object tree. On state change, React diffs new vs old VDOM (Fiber reconciliation), patches only changed real DOM nodes. Keys identify list items across renders. Batches updates for efficiency."},
     {id:3,q:"How would you optimize a slow React application?",ref:"Profile first with React DevTools. Solutions: React.memo, useMemo, useCallback, code splitting (lazy/Suspense), list virtualization (react-window), avoid anonymous functions in JSX, split Contexts, image optimization, debounce event handlers."},
+    {id:4,q:"Explain the difference between CSS Flexbox and Grid.",ref:"Flexbox: 1D layout (row or column), content-first, great for nav/cards/centering. Grid: 2D layout (rows and columns), layout-first, great for page layout. Use Flexbox for component-level, Grid for page-level. Can combine both."},
+    {id:5,q:"What is the event loop in JavaScript?",ref:"JS is single-threaded. Event loop: call stack (sync code) → Web APIs (async: setTimeout, fetch) → callback/microtask queue → back to stack. Microtasks (Promises) run before macrotasks (setTimeout). Prevents blocking UI."},
+    {id:6,q:"What are React hooks and why were they introduced?",ref:"Functions that let you use state and lifecycle in functional components. useState, useEffect, useContext, useRef, useMemo, useCallback. Introduced to avoid class components complexity, enable logic reuse via custom hooks, simpler mental model."},
+    {id:7,q:"Explain the concept of accessibility in web development.",ref:"Ensuring web is usable by people with disabilities. WCAG guidelines: perceivable, operable, understandable, robust. Techniques: semantic HTML, ARIA labels, keyboard navigation, color contrast, alt text, focus management. Screen reader testing essential."},
+    {id:8,q:"What is the difference between localStorage, sessionStorage, and cookies?",ref:"localStorage: persistent, 5-10MB, no expiry, same origin. sessionStorage: cleared on tab close, 5MB. Cookies: sent with every HTTP request, 4KB, can set expiry, HttpOnly/Secure flags for security. Use cookies for auth (HttpOnly prevents XSS), localStorage for preferences."},
   ],
 };
 
@@ -656,8 +682,11 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
   const recognRef=useRef(); const timerRef=useRef();
 
   const canInterview=userData.plan!=="free"||(userData.interviewsThisMonth||0)<3;
-  const questions=QUESTIONS[role]||[];
+  const [questions,setQuestions]=useState([]);
   const q=questions[qIdx];
+
+  // Shuffle helper
+  const shuffle=arr=>{const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 
   useEffect(()=>{
     if(timerActive&&timedMode){
@@ -680,6 +709,11 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
 
   const startInterview=()=>{
     if(!canInterview){onUpgrade();return;}
+    // Shuffle and pick 5 random questions each time
+    const pool=QUESTIONS[role]||[];
+    const picked=shuffle(pool).slice(0,Math.min(5,pool.length));
+    setQuestions(picked);
+    setQIdx(0);setScores([]);setCurrent(null);setAnswer("");
     setPhase("question");
     if(timedMode){setTimeLeft(120);setTimerActive(true);}
   };
