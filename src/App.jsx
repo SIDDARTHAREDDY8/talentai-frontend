@@ -842,12 +842,20 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
 function JDMatcher({userData,onJDMatched}){
   const [jd,setJd]=useState(""); const [result,setResult]=useState(null); const [loading,setLoading]=useState(false);
   const match=async()=>{
-    if(!userData.resumeText){alert("Analyze your resume first.");return;}
+    if(!userData.resumeText&&!userData.skills?.length){alert("⚠️ Please analyze your resume first before using JD Matcher.");return;}
+    if(!jd.trim()){alert("Please paste a job description.");return;}
     setLoading(true);
     try{
       const res=await resumeAPI.jdMatch(jd, userData.apiKey||null);
       setResult(res); onJDMatched();
-    }catch(e){alert(e.message);}
+    }catch(e){
+      const msg=e.message||"";
+      if(msg.includes("No resume")||msg.includes("400")){
+        alert("⚠️ No resume found. Please go to Resume Analysis and analyze your resume first.");
+      } else {
+        alert("Analysis failed: "+msg);
+      }
+    }
     setLoading(false);
   };
   const sc=s=>s>=75?C.green:s>=50?C.amber:C.red;
@@ -934,11 +942,20 @@ function CareerCoach({userData,onUpgrade}){
 function CoverLetter({userData,onLetterGenerated}){
   const [jd,setJd]=useState(""); const [company,setCompany]=useState(""); const [tone,setTone]=useState("professional"); const [letter,setLetter]=useState(""); const [loading,setLoading]=useState(false);
   const generate=async()=>{
-    if(!userData.resumeText){alert("Analyze resume first.");return;}setLoading(true);
+    if(!userData.resumeText&&!userData.skills?.length){alert("⚠️ Please go to Resume Analysis and analyze your resume first.");return;}
+    if(!jd.trim()){alert("Please add a job description.");return;}
+    setLoading(true);
     try{
       const res=await resumeAPI.coverLetter(jd,company,tone,userData.apiKey||null);
       setLetter(res.letter); onLetterGenerated();
-    }catch(e){alert(e.message);}
+    }catch(e){
+      const msg=e.message||"";
+      if(msg.includes("No resume")||msg.includes("400")){
+        alert("⚠️ No resume found. Please go to Resume Analysis first.");
+      } else {
+        alert("Failed to generate: "+msg);
+      }
+    }
     setLoading(false);
   };
   return(
