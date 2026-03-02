@@ -1055,7 +1055,7 @@ function GapsScreen({userData,onCoverageUpdate}){
       <Card>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
           <h3 style={{margin:0,color:C.text}}>Coverage — {role}</h3>
-          <div style={{display:"flex",alignItems:"center",gap:12}}><span style={{fontSize:30,fontWeight:900,color:coverage>=70?C.green:coverage>=40?C.amber:C.red}}>{coverage}%</span><Btn sm onClick={runAnalysis} disabled={analyzing}>{analyzing?"Running…":"Run Analysis"}</Btn></div>
+          <div style={{display:"flex",alignItems:"center",gap:12}}><span style={{fontSize:30,fontWeight:900,color:coverage>=70?C.green:coverage>=40?C.amber:C.red}}>{coverage}%</span></div>
         </div>
         <ProgressBar value={coverage} color={coverage>=70?C.green:coverage>=40?C.amber:C.red} h={12}/>
         <div style={{display:"flex",gap:20,marginTop:10}}><span style={{fontSize:13,color:C.green}}>✓ {present.length} present</span><span style={{fontSize:13,color:C.red}}>✗ {missing.length} missing</span></div>
