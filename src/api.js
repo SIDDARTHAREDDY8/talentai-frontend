@@ -113,6 +113,12 @@ export const interviewAPI = {
       method: "POST",
       body: JSON.stringify({ role, missingSkills, apiKey: apiKey || null }),
     }),
+
+  learningPlan: (role, missingSkills, apiKey) =>
+    apiFetch("/interview/gaps", {
+      method: "POST",
+      body: JSON.stringify({ role, missingSkills, apiKey: apiKey || null }),
+    }),
 };
 
 // ── Sessions ──────────────────────────────────────────────────────────────────

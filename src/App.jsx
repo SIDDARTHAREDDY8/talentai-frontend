@@ -1003,6 +1003,13 @@ function GapsScreen({userData,onCoverageUpdate}){
     "Data Engineer":["Python","SQL","Apache Spark","Kafka","Airflow","AWS","ETL","Data Warehousing","Docker","Kubernetes","Hadoop","Scala"],
     "ML Engineer":["Python","TensorFlow","PyTorch","MLOps","Docker","Kubernetes","scikit-learn","REST APIs","SQL","AWS/GCP","Model Deployment","Git"],
     "Frontend Developer":["JavaScript","TypeScript","React","CSS","HTML","Vue.js","Webpack","Git","REST APIs","Testing","Accessibility","Performance Optimization"],
+    "Backend Developer":["Python","Java","Node.js","SQL","PostgreSQL","MongoDB","Redis","REST APIs","Docker","Kubernetes","Microservices","Git"],
+    "DevOps Engineer":["Linux","Docker","Kubernetes","AWS","Terraform","CI/CD","Jenkins","Git","Bash","Monitoring","Ansible","Networking"],
+    "Cloud Engineer":["AWS","Azure","GCP","Terraform","Kubernetes","Docker","CI/CD","Networking","Security","Linux","Python","IaC"],
+    "Full Stack Developer":["JavaScript","TypeScript","React","Node.js","Python","SQL","MongoDB","REST APIs","Git","Docker","CSS","HTML"],
+    "Product Manager":["Agile","JIRA","SQL","Data Analysis","User Research","Roadmapping","Stakeholder Management","A/B Testing","Wireframing","KPIs","Communication","Excel"],
+    "Cybersecurity Engineer":["Network Security","SIEM","Python","Linux","Penetration Testing","OWASP","Firewalls","IDS/IPS","Cryptography","Compliance","Incident Response","Risk Assessment"],
+    "Mobile Developer":["Swift","Kotlin","React Native","Flutter","REST APIs","Git","Firebase","iOS","Android","UX Design","Testing","App Store Deployment"],
   };
   const [role,setRole]=useState(userData.recommendedRole||"Software Engineer");
   const [plan,setPlan]=useState(null); const [loading,setLoading]=useState(false); const [analyzing,setAnalyzing]=useState(false); const [gapResult,setGapResult]=useState(null);
@@ -1013,19 +1020,21 @@ function GapsScreen({userData,onCoverageUpdate}){
   const missing=req.filter(s=>!userLower.includes(s.toLowerCase()));
   const cov=req.length?Math.round((present.length/req.length)*100):0;
 
-  const runAnalysis=async()=>{
+  const runAnalysis=()=>{
     setAnalyzing(true);
-    try{
-      const res=await interviewAPI.gaps(role,userData.skills||[],userData.apiKey||null);
-      setGapResult(res); onCoverageUpdate(res.coverage,role);
-    }catch(e){ onCoverageUpdate(cov,role); }
+    // Calculate locally — no API needed
+    setGapResult({coverage:cov, presentSkills:present, missingSkills:missing});
+    onCoverageUpdate(cov,role);
     setAnalyzing(false);
   };
 
   const getPlan=async()=>{
+    if(!missing.length){alert("No missing skills to generate a plan for!");return;}
     setLoading(true);
-    try{ const res=await interviewAPI.gaps(role,missing,userData.apiKey||null); setPlan(res); }
-    catch(e){ console.error(e); }
+    try{
+      const res=await interviewAPI.learningPlan(role,missing,userData.apiKey||null);
+      setPlan(res);
+    }catch(e){ alert("Failed to generate plan: "+e.message); console.error(e); }
     setLoading(false);
   };
 
