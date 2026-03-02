@@ -1020,11 +1020,17 @@ function GapsScreen({userData,onCoverageUpdate}){
   const missing=req.filter(s=>!userLower.includes(s.toLowerCase()));
   const cov=req.length?Math.round((present.length/req.length)*100):0;
 
+  // Auto-calculate on load and role change
+  useEffect(()=>{
+    setGapResult({coverage:cov, presentSkills:present, missingSkills:missing});
+  },[role, userData.skills]);
+
   const runAnalysis=()=>{
     setAnalyzing(true);
     setTimeout(()=>{
-      setGapResult({coverage:cov, presentSkills:present, missingSkills:missing});
-      onCoverageUpdate(cov,role);
+      const newCov=req.length?Math.round((req.filter(s=>(userData.skills||[]).map(x=>x.toLowerCase()).includes(s.toLowerCase())).length/req.length)*100):0;
+      setGapResult({coverage:newCov, presentSkills:present, missingSkills:missing});
+      onCoverageUpdate(newCov,role);
       setAnalyzing(false);
     },300);
   };
@@ -1060,10 +1066,10 @@ function GapsScreen({userData,onCoverageUpdate}){
       </div>
       {plan&&(
         <Card>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}><h3 style={{margin:0,color:C.text}}>AI Learning Plan</h3><Badge color={C.amber}>{plan.timeline}</Badge></div>
-          {plan.priority&&<div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:8}}>PRIORITY ORDER</div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{plan.priority.map((s,i)=><div key={s} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",background:C.accent+"15",borderRadius:8,border:`1px solid ${C.accent}22`}}><div style={{width:18,height:18,borderRadius:"50%",background:C.accent,color:"#fff",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{i+1}</div><span style={{color:C.text,fontSize:13,fontWeight:600}}>{s}</span></div>)}</div></div>}
-          {plan.weeklyPlan&&<div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:8}}>WEEKLY PLAN</div>{plan.weeklyPlan.map((w,i)=><div key={i} style={{display:"flex",gap:10,padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.accent,fontWeight:700,fontSize:13,minWidth:56}}>Week {i+1}</span><span style={{fontSize:13,color:C.text}}>{w}</span></div>)}</div>}
-          {plan.resources&&<div><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:8}}>RESOURCES</div>{Object.entries(plan.resources).map(([s,t])=><div key={s} style={{display:"flex",gap:10,padding:"8px 12px",background:C.surface,borderRadius:8,marginBottom:6,alignItems:"flex-start"}}><Badge>{s}</Badge><span style={{fontSize:13,color:C.muted,flex:1}}>{t}</span></div>)}</div>}
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}><h3 style={{margin:0,color:C.text}}>AI Learning Plan</h3><Badge color={C.amber}>{plan.timeline||"4-6 weeks"}</Badge></div>
+          {plan.priority&&<div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:8}}>PRIORITY ORDER</div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{plan.priority.map((s,i)=><div key={i} style={{display:"flex",alignItems:"center",gap:6,padding:"7px 12px",background:C.accent+"15",borderRadius:8,border:`1px solid ${C.accent}22`}}><div style={{width:18,height:18,borderRadius:"50%",background:C.accent,color:"#fff",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{i+1}</div><span style={{color:C.text,fontSize:13,fontWeight:600}}>{typeof s==="string"?s:JSON.stringify(s)}</span></div>)}</div></div>}
+          {plan.weeklyPlan&&<div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:8}}>WEEKLY PLAN</div>{plan.weeklyPlan.map((w,i)=><div key={i} style={{display:"flex",gap:10,padding:"7px 0",borderBottom:`1px solid ${C.border}`}}><span style={{color:C.accent,fontWeight:700,fontSize:13,minWidth:56}}>Week {i+1}</span><span style={{fontSize:13,color:C.text}}>{typeof w==="string"?w:JSON.stringify(w)}</span></div>)}</div>}
+          {plan.resources&&typeof plan.resources==="object"&&<div><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:8}}>RESOURCES</div>{Object.entries(plan.resources).map(([s,t])=><div key={s} style={{display:"flex",gap:10,padding:"8px 12px",background:C.surface,borderRadius:8,marginBottom:6,alignItems:"flex-start"}}><Badge>{s}</Badge><span style={{fontSize:13,color:C.muted,flex:1}}>{typeof t==="string"?t:JSON.stringify(t)}</span></div>)}</div>}
         </Card>
       )}
     </div>
