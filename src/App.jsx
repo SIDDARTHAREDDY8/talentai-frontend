@@ -648,11 +648,12 @@ function Dashboard({userData,setActive,user,onUpgrade}){
 // ─────────────────────────────────────────────────────────────────────────────
 function ResumeScreen({userData,onResumeAnalyzed}){
   const [tab,setTab]=useState("upload");
-  const [text,setText]=useState("");
-  const [fileName,setFileName]=useState(null);
+  // Restore text/filename if user already analyzed this session
+  const [text,setText]=useState(userData.resumeText||"");
+  const [fileName,setFileName]=useState(userData.resumeFileName||null);
   const [busy,setBusy]=useState(false);
   const [loading,setLoading]=useState(false);
-  const [result,setResult]=useState(null);
+  const [result,setResult]=useState(userData.skills?.length?{skills:userData.skills,level:userData.level,bestRole:userData.recommendedRole}:null);
   const fileRef=useRef();
 
   const processFile=async(f)=>{
@@ -672,7 +673,7 @@ function ResumeScreen({userData,onResumeAnalyzed}){
     try{
       const res=await resumeAPI.analyze(text);
       setResult(res);
-      onResumeAnalyzed(res, text);
+      onResumeAnalyzed(res, text, fileName);
     }catch(e){ alert("Analysis failed: "+e.message); }
     setLoading(false);
   };
@@ -914,14 +915,16 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
 // JD MATCHER
 // ─────────────────────────────────────────────────────────────────────────────
 function JDMatcher({userData,onJDMatched}){
-  const [jd,setJd]=useState(""); const [result,setResult]=useState(null); const [loading,setLoading]=useState(false);
+  const [jd,setJd]=useState(userData.lastJD||""); 
+  const [result,setResult]=useState(userData.lastJDResult||null); 
+  const [loading,setLoading]=useState(false);
   const match=async()=>{
     if(!userData.resumeText&&!userData.skills?.length){alert("⚠️ Please analyze your resume first before using JD Matcher.");return;}
     if(!jd.trim()){alert("Please paste a job description.");return;}
     setLoading(true);
     try{
       const res=await resumeAPI.jdMatch(jd, userData.apiKey||null);
-      setResult(res); onJDMatched();
+      setResult(res); onJDMatched(res,jd);
     }catch(e){
       const msg=e.message||"";
       if(msg.includes("No resume")||msg.includes("400")){
@@ -1014,14 +1017,19 @@ function CareerCoach({userData,onUpgrade}){
 // COVER LETTER
 // ─────────────────────────────────────────────────────────────────────────────
 function CoverLetter({userData,onLetterGenerated}){
-  const [jd,setJd]=useState(""); const [company,setCompany]=useState(""); const [tone,setTone]=useState("professional"); const [letter,setLetter]=useState(""); const [loading,setLoading]=useState(false);
+  const [jd,setJd]=useState(userData.lastCLJD||""); 
+  const [company,setCompany]=useState(userData.lastCLCompany||""); 
+  const [tone,setTone]=useState("professional"); 
+  const [letter,setLetter]=useState(userData.lastCLLetter||""); 
+  const [loading,setLoading]=useState(false);
   const generate=async()=>{
     if(!userData.resumeText&&!userData.skills?.length){alert("⚠️ Please go to Resume Analysis and analyze your resume first.");return;}
     if(!jd.trim()){alert("Please add a job description.");return;}
     setLoading(true);
     try{
-      const res=await resumeAPI.coverLetter(jd,company,tone,userData.apiKey||null);
-      setLetter(res.letter); onLetterGenerated();
+      const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+      const res=await resumeAPI.coverLetter(jd,company,tone,today,userData.apiKey||null);
+      setLetter(res.letter); onLetterGenerated(res.letter,jd,company);
     }catch(e){
       const msg=e.message||"";
       if(msg.includes("No resume")||msg.includes("400")){
@@ -1365,21 +1373,62 @@ export default function App(){
   useEffect(()=>{
     const t=token.get();
     if(!t){ setLoading(false); return; }
+    // Restore session cache from localStorage (survives screen switches)
+    const sessionCache=LS.get("tai_session_cache",{});
     Promise.all([authAPI.me(), sessionsAPI.getAll()])
       .then(([profile,sessionData])=>{
         setUser({name:profile.name,email:profile.email});
-        setUserData({...profile,sessions:sessionData.sessions||[],skills:[],resumeText:"",coverage:null,coverLettersGenerated:0,jdMatchesRun:0});
-        // Also fetch resume skills if they exist
+        setUserData({
+          ...profile,
+          sessions:sessionData.sessions||[],
+          // Restore cached session data so users don't lose resume/results
+          skills:sessionCache.skills||[],
+          resumeText:sessionCache.resumeText||"",
+          resumeFileName:sessionCache.resumeFileName||"",
+          coverage:sessionCache.coverage||null,
+          targetRole:sessionCache.targetRole||null,
+          coverLettersGenerated:sessionCache.coverLettersGenerated||0,
+          jdMatchesRun:sessionCache.jdMatchesRun||0,
+          lastJD:sessionCache.lastJD||"",
+          lastJDResult:sessionCache.lastJDResult||null,
+          lastCLLetter:sessionCache.lastCLLetter||"",
+          lastCLJD:sessionCache.lastCLJD||"",
+          lastCLCompany:sessionCache.lastCLCompany||"",
+        });
         return resumeAPI.get();
       })
       .then(resume=>{
         if(resume?.exists){
-          setUserData(p=>({...p,skills:resume.skills||[],recommendedRole:resume.recommendedRole||p.recommendedRole,level:resume.level||p.level}));
+          setUserData(p=>({
+            ...p,
+            skills:p.skills?.length?p.skills:(resume.skills||[]),
+            recommendedRole:resume.recommendedRole||p.recommendedRole,
+            level:resume.level||p.level,
+          }));
         }
       })
       .catch(()=>{ token.clear(); setUser(null); setUserData(null); })
       .finally(()=>setLoading(false));
   },[]);
+
+  // Persist session data to localStorage whenever key fields change
+  useEffect(()=>{
+    if(!userData||!user) return;
+    LS.set("tai_session_cache",{
+      skills:userData.skills||[],
+      resumeText:userData.resumeText||"",
+      resumeFileName:userData.resumeFileName||"",
+      coverage:userData.coverage||null,
+      targetRole:userData.targetRole||null,
+      coverLettersGenerated:userData.coverLettersGenerated||0,
+      jdMatchesRun:userData.jdMatchesRun||0,
+      lastJD:userData.lastJD||"",
+      lastJDResult:userData.lastJDResult||null,
+      lastCLLetter:userData.lastCLLetter||"",
+      lastCLJD:userData.lastCLJD||"",
+      lastCLCompany:userData.lastCLCompany||"",
+    });
+  },[userData?.skills,userData?.resumeText,userData?.coverage]);
 
   // Achievement toast check
   useEffect(()=>{
@@ -1397,7 +1446,7 @@ export default function App(){
     setActive("dashboard");
   };
 
-  const handleLogout=()=>{ token.clear(); setUser(null); setUserData(null); };
+  const handleLogout=()=>{ token.clear(); LS.del('tai_session_cache'); setUser(null); setUserData(null); };
 
   if(loading) return <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'DM Sans','Segoe UI',sans-serif"}}><Spinner text="Loading TalentAI…"/></div>;
   if(!user||!userData) return <AuthScreen onAuth={handleAuth}/>;
@@ -1405,25 +1454,31 @@ export default function App(){
 
   const upgrade=()=>setShowPricing(true);
 
-  const screens={
-    dashboard:    <Dashboard userData={userData} setActive={setActive} user={user} onUpgrade={upgrade}/>,
-    resume:       <ResumeScreen userData={userData} onResumeAnalyzed={(res,text)=>setUserData(p=>({...p,skills:res.skills,resumeText:text,recommendedRole:res.bestRole||p.recommendedRole,level:res.level||p.level}))}/>,
-    interview:    <InterviewScreen userData={userData} onSessionSaved={s=>setUserData(p=>({...p,sessions:[...p.sessions,s],interviewsThisMonth:(p.interviewsThisMonth||0)+1}))} onUpgrade={upgrade}/>,
-    gaps:         <GapsScreen userData={userData} onCoverageUpdate={(cov,role)=>setUserData(p=>({...p,coverage:cov,targetRole:role}))}/>,
-    jdmatch:      <JDMatcher userData={userData} onJDMatched={()=>setUserData(p=>({...p,jdMatchesRun:(p.jdMatchesRun||0)+1}))}/>,
-    coach:        <CareerCoach userData={userData} onUpgrade={upgrade}/>,
-    cover:        <CoverLetter userData={userData} onLetterGenerated={()=>setUserData(p=>({...p,coverLettersGenerated:(p.coverLettersGenerated||0)+1}))}/>,
-    history:      <SessionHistory userData={userData} onUpgrade={upgrade}/>,
-    achievements: <Achievements userData={userData}/>,
-    analytics:    <Analytics userData={userData}/>,
-    settings:     <Settings userData={userData} user={user} onUpgrade={upgrade} onGoalUpdate={goal=>setUserData(p=>({...p,dailyGoal:goal}))}/>,
-  };
+  // All screens defined as entries — rendered all at once, shown/hidden via CSS
+  // This prevents unmount/remount when switching tabs, so all state is preserved
+  const screenEntries=[
+    ["dashboard",    <Dashboard userData={userData} setActive={setActive} user={user} onUpgrade={upgrade}/>],
+    ["resume",       <ResumeScreen userData={userData} onResumeAnalyzed={(res,text,fileName)=>setUserData(p=>({...p,skills:res.skills||[],resumeText:text,resumeFileName:fileName||"",recommendedRole:res.bestRole||p.recommendedRole,level:res.level||p.level}))}/>],
+    ["interview",    <InterviewScreen userData={userData} onSessionSaved={s=>setUserData(p=>({...p,sessions:[...p.sessions,s],interviewsThisMonth:(p.interviewsThisMonth||0)+1}))} onUpgrade={upgrade}/>],
+    ["gaps",         <GapsScreen userData={userData} onCoverageUpdate={(cov,role)=>setUserData(p=>({...p,coverage:cov,targetRole:role}))}/>],
+    ["jdmatch",      <JDMatcher userData={userData} onJDMatched={(res,jd)=>setUserData(p=>({...p,jdMatchesRun:(p.jdMatchesRun||0)+1,lastJDResult:res,lastJD:jd}))}/>],
+    ["coach",        <CareerCoach userData={userData} onUpgrade={upgrade}/>],
+    ["cover",        <CoverLetter userData={userData} onLetterGenerated={(letter,jd,company)=>setUserData(p=>({...p,coverLettersGenerated:(p.coverLettersGenerated||0)+1,lastCLLetter:letter,lastCLJD:jd,lastCLCompany:company}))}/>],
+    ["history",      <SessionHistory userData={userData} onUpgrade={upgrade}/>],
+    ["achievements", <Achievements userData={userData}/>],
+    ["analytics",    <Analytics userData={userData}/>],
+    ["settings",     <Settings userData={userData} user={user} onUpgrade={upgrade} onGoalUpdate={goal=>setUserData(p=>({...p,dailyGoal:goal}))}/>],
+  ];
 
   return(
     <div style={{minHeight:"100vh",background:C.bg,display:"flex",fontFamily:"'DM Sans','Segoe UI',sans-serif",color:C.text}}>
       <Sidebar active={active} setActive={setActive} user={user} userData={userData} onLogout={handleLogout} onUpgrade={upgrade}/>
       <main style={{marginLeft:220,flex:1,padding:"28px 32px",maxWidth:"calc(100% - 220px)",boxSizing:"border-box"}}>
-        {screens[active]}
+        {screenEntries.map(([id,screen])=>(
+          <div key={id} style={{display:active===id?"block":"none"}}>
+            {screen}
+          </div>
+        ))}
       </main>
       {showPricing&&<PricingModal onClose={()=>setShowPricing(false)} userData={userData} onPlanUpgrade={plan=>setUserData(p=>({...p,plan}))}/>}
       {toast&&<Toast msg={toast} onDone={()=>setToast(null)}/>}
