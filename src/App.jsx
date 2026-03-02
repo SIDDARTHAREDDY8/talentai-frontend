@@ -1022,10 +1022,11 @@ function GapsScreen({userData,onCoverageUpdate}){
 
   const runAnalysis=()=>{
     setAnalyzing(true);
-    // Calculate locally — no API needed
-    setGapResult({coverage:cov, presentSkills:present, missingSkills:missing});
-    onCoverageUpdate(cov,role);
-    setAnalyzing(false);
+    setTimeout(()=>{
+      setGapResult({coverage:cov, presentSkills:present, missingSkills:missing});
+      onCoverageUpdate(cov,role);
+      setAnalyzing(false);
+    },300);
   };
 
   const getPlan=async()=>{
