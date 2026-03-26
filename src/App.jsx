@@ -611,12 +611,12 @@ function Dashboard({userData,setActive,user,onUpgrade}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <div><h1 style={{fontSize:26,fontWeight:900,color:C.text,margin:0}}>Welcome back, {user.name.split(" ")[0]} </h1><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Your AI-powered interview command center</p></div>
+        <div><h1 style={{fontSize:26,fontWeight:900,color:C.text,margin:0}}>Welcome back, {user.name.split(" ")[0]}</h1><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Your AI-powered interview command center</p></div>
         {userData.plan==="free"&&<div onClick={onUpgrade} style={{background:`linear-gradient(135deg,${C.accent},${C.purple})`,borderRadius:12,padding:"10px 18px",cursor:"pointer",textAlign:"center"}}><div style={{fontSize:12,color:"rgba(255,255,255,.7)"}}>Unlock all features</div><div style={{fontSize:15,fontWeight:800,color:"#fff"}}>Upgrade to Pro →</div></div>}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
-        {[{label:"Skills Found",value:userData.skills?.length||0,color:C.accent,icon:"+"},{label:"Sessions",value:sessions.length,color:C.green,icon:"+"},{label:"Avg Score",value:avg!=null?`${avg}%`:"—",color:C.amber,icon:"+"},{label:"Day Streak",value:`${userData.streak||0}d`,color:C.red,icon:""}].map(s=>(
-          <Card key={s.label} style={{padding:18}}><div style={{fontSize:22,marginBottom:6}}>{s.icon}</div><div style={{fontSize:28,fontWeight:900,color:s.color}}>{s.value}</div><div style={{fontSize:12,color:C.muted,marginTop:3}}>{s.label}</div></Card>
+        {[{label:"Skills Detected",value:userData.skills?.length||0,color:C.accent,sub:"from resume"},{label:"Sessions Done",value:sessions.length,color:C.green,sub:"mock interviews"},{label:"Avg Score",value:avg!=null?`${avg}%`:"—",color:C.amber,sub:"across sessions"},{label:"Day Streak",value:`${userData.streak||0}d`,color:C.red,sub:"consecutive days"}].map(s=>(
+          <Card key={s.label} style={{padding:20}}><div style={{fontSize:28,fontWeight:900,color:s.color,marginBottom:4}}>{s.value}</div><div style={{fontSize:13,color:C.text,fontWeight:600}}>{s.label}</div><div style={{fontSize:11,color:C.muted,marginTop:2}}>{s.sub}</div></Card>
         ))}
       </div>
       <Card style={{padding:18}}>
@@ -627,8 +627,13 @@ function Dashboard({userData,setActive,user,onUpgrade}){
         <ProgressBar value={userData.todayCount||0} max={userData.dailyGoal||3} color={(userData.todayCount||0)>=(userData.dailyGoal||3)?C.green:C.amber} h={10}/>
       </Card>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-        {[{id:"resume",icon:"→",title:"Resume Analysis",desc:"NLP skill extraction + ATS scoring",color:C.accent},{id:"interview",icon:"→",title:"Mock Interview",desc:"ML-scored with ideal answer reveal",color:C.green},{id:"jdmatch",icon:"→",title:"JD Matcher",desc:"AI fit score against any job posting",color:C.amber},{id:"coach",icon:"→",title:"AI Career Coach",desc:"Personalized career advice anytime",color:C.purple},{id:"cover",icon:"→",title:"Cover Letter",desc:"AI-generated tailored letter",color:C.red},{id:"gaps",icon:"→",title:"Skill Gap Analysis",desc:"Data mining against role requirements",color:C.cyan}].map(item=>(
-          <Card key={item.id} hover onClick={()=>setActive(item.id)} style={{padding:18}}><div style={{fontSize:26,marginBottom:8}}>{item.icon}</div><div style={{fontWeight:700,color:C.text,fontSize:14,marginBottom:4}}>{item.title}</div><div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>{item.desc}</div></Card>
+        {[{id:"resume",title:"Resume Analysis",desc:"NLP skill extraction + ATS scoring",color:C.accent},{id:"interview",title:"Mock Interview",desc:"AI-scored with ideal answer reveal",color:C.green},{id:"jdmatch",title:"JD Matcher",desc:"AI fit score against any job posting",color:C.amber},{id:"coach",title:"AI Career Coach",desc:"Personalized career advice anytime",color:C.purple},{id:"cover",title:"Cover Letter",desc:"AI-generated tailored cover letter",color:C.red},{id:"gaps",title:"Skill Gap Analysis",desc:"Identifies missing skills by role",color:C.cyan}].map(item=>(
+          <Card key={item.id} hover onClick={()=>setActive(item.id)} style={{padding:20,cursor:"pointer",borderLeft:`3px solid ${item.color}`}}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:item.color,marginBottom:10}}></div>
+            <div style={{fontWeight:700,color:C.text,fontSize:14,marginBottom:6}}>{item.title}</div>
+            <div style={{fontSize:12,color:C.muted,lineHeight:1.6}}>{item.desc}</div>
+            <div style={{marginTop:12,fontSize:11,color:item.color,fontWeight:600}}>Open →</div>
+          </Card>
         ))}
       </div>
       {unlocked.length>0&&(
@@ -691,7 +696,7 @@ function ResumeScreen({userData,onResumeAnalyzed}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
-      <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Resume Analysis</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Upload PDF/DOCX or paste text — AI extracts skills, assesses your profile & ATS score</p></div>
+      <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Resume Analysis</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Upload your resume — the system extracts skills, assesses your profile, and computes an ATS compatibility score</p></div>
       <div style={{display:"flex",gap:8}}>{TAB("upload","Upload File","")}{TAB("paste","Paste Text","")}</div>
       {tab==="upload"&&(
         <Card>
@@ -1290,7 +1295,7 @@ function Analytics({userData}){
   },[userData.sessions]);
   const sessions=userData.sessions||[];
   if(loading) return <Spinner text="Loading analytics…"/>;
-  if(!sessions.length) return(<div style={{display:"flex",flexDirection:"column",gap:22}}><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Analytics</h2><Card style={{textAlign:"center",padding:60}}><p style={{color:C.muted}}>Complete a mock interview to see your analytics.</p></Card></div>);
+  if(!sessions.length) return(<div style={{display:"flex",flexDirection:"column",gap:22}}><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Analytics Dashboard</h2><Card style={{textAlign:"center",padding:60}}><div style={{width:56,height:56,borderRadius:14,background:C.accent+"15",margin:"0 auto 16px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,color:C.accent,fontWeight:900}}>{"#"}</div><div style={{fontWeight:700,color:C.text,marginBottom:8}}>No data yet</div><p style={{color:C.muted,fontSize:14,margin:0}}>Complete a mock interview session to start seeing your performance analytics.</p></Card></div>);
   const W=600,H=130;
   const pts=sessions.map((s,i)=>({x:sessions.length===1?W/2:(i/(sessions.length-1))*W,y:H-(s.avgScore/100)*(H-20)-10,s}));
   const pathD=pts.map((p,i)=>`${i===0?"M":"L"}${p.x},${p.y}`).join(" ");
@@ -1298,7 +1303,7 @@ function Analytics({userData}){
   const overview=data?.overview||{};
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
-      <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Analytics Dashboard</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Performance trends from your cloud database</p></div>
+      <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Analytics Dashboard</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Your interview performance over time — scores, trends, and areas to improve</p></div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
         {[{l:"Sessions",v:overview.totalSessions||sessions.length,c:C.accent},{l:"Avg Score",v:`${overview.avgScore||0}%`,c:C.green},{l:"Best Score",v:`${overview.bestScore||0}%`,c:C.amber},{l:"Questions",v:overview.totalQuestions||0,c:C.purple}].map(s=><Card key={s.l} style={{padding:16}}><div style={{fontSize:26,fontWeight:900,color:s.c}}>{s.v}</div><div style={{fontSize:12,color:C.muted,marginTop:3}}>{s.l}</div></Card>)}
       </div>
@@ -1352,6 +1357,25 @@ function Settings({userData,user,onUpgrade,onGoalUpdate}){
         </div>
         <div style={{padding:"10px 14px",background:C.green+"10",border:`1px solid ${C.green}22`,borderRadius:8,fontSize:13,color:C.muted,marginTop:8}}>
            Your data is securely stored in a cloud database and syncs across all your devices.
+        </div>
+      </Card>
+      <Card style={{borderColor:C.accent+"33",background:C.accent+"06"}}>
+        <h3 style={{margin:"0 0 14px",color:C.text}}>System Information</h3>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {[
+            {label:"Frontend",value:"React — Vercel"},
+            {label:"Backend",value:"Python FastAPI — Render"},
+            {label:"Database",value:"PostgreSQL — Supabase"},
+            {label:"AI Engine",value:"Large Language Model (NLP Inference)"},
+            {label:"Auth",value:"JWT — bcrypt"},
+            {label:"Resume Parsing",value:"PDF.js + Mammoth.js"},
+            {label:"Interview Roles",value:"12 roles — 105 questions"},
+          ].map(r=>(
+            <div key={r.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${C.border}`}}>
+              <span style={{fontSize:13,color:C.muted}}>{r.label}</span>
+              <span style={{fontSize:13,color:C.text,fontWeight:600}}>{r.value}</span>
+            </div>
+          ))}
         </div>
       </Card>
       <Card>
