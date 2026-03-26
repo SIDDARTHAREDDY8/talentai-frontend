@@ -24,16 +24,16 @@ const PLANS = {
 };
 
 const ACHIEVEMENTS = [
-  { id:"first_resume",    icon:"📄", title:"Resume Ready",      desc:"Analyzed your first resume",         check:d=>d.skills?.length>0 },
-  { id:"first_interview", icon:"🎤", title:"First Interview",   desc:"Completed your first mock interview",check:d=>d.sessions?.length>=1 },
-  { id:"perfect_score",   icon:"💯", title:"Perfect Score",     desc:"Scored 90+ on a question",           check:d=>d.sessions?.some(s=>s.scores?.some(q=>q.score>=90)) },
-  { id:"five_sessions",   icon:"🏅", title:"Consistent",        desc:"Completed 5 interview sessions",     check:d=>d.sessions?.length>=5 },
-  { id:"streak_3",        icon:"🔥", title:"On Fire",           desc:"3-day practice streak",              check:d=>(d.streak||0)>=3 },
-  { id:"skill_master",    icon:"🧩", title:"Skill Master",      desc:"20+ skills in your profile",         check:d=>d.skills?.length>=20 },
-  { id:"cover_letter",    icon:"✉️", title:"Application Ready", desc:"Generated a cover letter",           check:d=>d.coverLettersGenerated>0 },
-  { id:"jd_match",        icon:"🔗", title:"Job Hunter",        desc:"Used JD Matcher",                    check:d=>d.jdMatchesRun>0 },
-  { id:"high_coverage",   icon:"🎯", title:"Role Ready",        desc:"Achieved 80%+ skill coverage",       check:d=>(d.coverage||0)>=80 },
-  { id:"pro_member",      icon:"⭐", title:"Pro Member",        desc:"Upgraded to Pro plan",               check:d=>d.plan==="pro"||d.plan==="team" },
+  { id:"first_resume",    icon:"→", title:"Resume Ready",      desc:"Analyzed your first resume",         check:d=>d.skills?.length>0 },
+  { id:"first_interview", icon:"→", title:"First Interview",   desc:"Completed your first mock interview",check:d=>d.sessions?.length>=1 },
+  { id:"perfect_score",   icon:"", title:"Perfect Score",     desc:"Scored 90+ on a question",           check:d=>d.sessions?.some(s=>s.scores?.some(q=>q.score>=90)) },
+  { id:"five_sessions",   icon:"", title:"Consistent",        desc:"Completed 5 interview sessions",     check:d=>d.sessions?.length>=5 },
+  { id:"streak_3",        icon:"", title:"On Fire",           desc:"3-day practice streak",              check:d=>(d.streak||0)>=3 },
+  { id:"skill_master",    icon:"+", title:"Skill Master",      desc:"20+ skills in your profile",         check:d=>d.skills?.length>=20 },
+  { id:"cover_letter",    icon:"→", title:"Application Ready", desc:"Generated a cover letter",           check:d=>d.coverLettersGenerated>0 },
+  { id:"jd_match",        icon:"→", title:"Job Hunter",        desc:"Used JD Matcher",                    check:d=>d.jdMatchesRun>0 },
+  { id:"high_coverage",   icon:"→", title:"Role Ready",        desc:"Achieved 80%+ skill coverage",       check:d=>(d.coverage||0)>=80 },
+  { id:"pro_member",      icon:"+", title:"Pro Member",        desc:"Upgraded to Pro plan",               check:d=>d.plan==="pro"||d.plan==="team" },
 ];
 
 const QUESTIONS = {
@@ -219,9 +219,16 @@ const Card=({children,style={},onClick,hover})=>{
 
 const Btn=({children,onClick,variant="primary",disabled,full,sm,style={}})=>{
   const [h,setH]=useState(false);
-  const v={primary:{bg:h?"#3a7ae8":C.accent,color:"#fff",border:"none"},secondary:{bg:h?C.border:"transparent",color:C.text,border:`1px solid ${C.border}`},ghost:{bg:"transparent",color:C.muted,border:"none"},danger:{bg:h?"#c44":C.red,color:"#fff",border:"none"},green:{bg:h?"#1aaf86":C.green,color:"#fff",border:"none"},purple:{bg:h?"#9070e8":C.purple,color:"#fff",border:"none"}}[variant]||{};
+  const v={
+    primary:{bg:h?"#2563eb":C.accent,color:"#ffffff",border:"none",shadow:"0 2px 8px rgba(58,130,232,0.35)"},
+    secondary:{bg:h?"#2a2d3a":"#1e2130",color:"#e2e8f0",border:`1px solid ${C.border}`},
+    ghost:{bg:h?"rgba(255,255,255,0.06)":"transparent",color:C.muted,border:"none"},
+    danger:{bg:h?"#c44":C.red,color:"#ffffff",border:"none",shadow:"0 2px 8px rgba(220,53,69,0.3)"},
+    green:{bg:h?"#1aaf86":C.green,color:"#ffffff",border:"none",shadow:"0 2px 8px rgba(32,178,134,0.3)"},
+    purple:{bg:h?"#9070e8":C.purple,color:"#ffffff",border:"none",shadow:"0 2px 8px rgba(139,92,246,0.3)"},
+  }[variant]||{};
   return <button disabled={disabled} onClick={onClick} onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
-    style={{...v,borderRadius:10,padding:sm?"7px 14px":"10px 22px",fontSize:sm?13:14,fontWeight:600,cursor:disabled?"not-allowed":"pointer",opacity:disabled?.45:1,transition:"all .18s",width:full?"100%":"auto",...style}}>{children}</button>;
+    style={{background:v.bg,color:v.color,border:v.border||"none",boxShadow:disabled?"none":(v.shadow||"none"),borderRadius:10,padding:sm?"7px 18px":"10px 26px",fontSize:sm?13:14,fontWeight:700,cursor:disabled?"not-allowed":"pointer",opacity:disabled?.45:1,transition:"all .18s",width:full?"100%":"auto",letterSpacing:"0.01em",...style}}>{children}</button>;
 };
 
 const Input=({label,type="text",value,onChange,placeholder,error,hint})=>(
@@ -273,13 +280,13 @@ const Toast=({msg,type="success",onDone})=>{
   useEffect(()=>{const t=setTimeout(onDone,3000);return()=>clearTimeout(t);},[]);
   const color=type==="success"?C.green:type==="error"?C.red:C.amber;
   return <div style={{position:"fixed",bottom:24,right:24,background:C.card,border:`1px solid ${color}`,borderRadius:12,padding:"12px 20px",color:C.text,fontSize:14,fontWeight:600,zIndex:2000,maxWidth:320}}>
-    {type==="success"?"✅":type==="error"?"❌":"⚠️"} {msg}
+    {msg}
   </div>;
 };
 
 const Spinner=({text})=>(
   <div style={{textAlign:"center",padding:"40px 0"}}>
-    <div style={{fontSize:32,marginBottom:10}}>⏳</div>
+    <div style={{fontSize:32,marginBottom:10}}></div>
     <div style={{color:C.accent,fontWeight:600,fontSize:14}}>{text||"Loading…"}</div>
   </div>
 );
@@ -316,7 +323,7 @@ function AuthScreen({onAuth}){
       <div style={{position:"fixed",bottom:"10%",right:"20%",width:400,height:400,background:`radial-gradient(ellipse,${C.purple}12 0%,transparent 70%)`,pointerEvents:"none"}}/>
       <div style={{width:"100%",maxWidth:440,padding:24,position:"relative"}}>
         <div style={{textAlign:"center",marginBottom:36}}>
-          <div style={{width:60,height:60,borderRadius:16,background:`linear-gradient(135deg,${C.accent},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,margin:"0 auto 14px"}}>🎯</div>
+          
           <div style={{fontSize:30,fontWeight:900,color:C.text,letterSpacing:-1}}>TalentAI</div>
           <div style={{fontSize:13,color:C.muted,marginTop:4}}>AI-Powered Interview Preparation Platform</div>
           <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:10}}>
@@ -378,7 +385,7 @@ function Onboarding({user,onDone}){
   };
 
   const steps=[
-    {title:`Welcome, ${user.name.split(" ")[0]}! 🎉`,sub:"Let's set up your profile in 3 quick steps"},
+    {title:`Welcome, ${user.name.split(" ")[0]}!`,sub:"Let's set up your profile in 3 quick steps"},
     {title:"What role are you targeting?",sub:"We'll customize your questions and gap analysis"},
     {title:"Set your daily practice goal",sub:"Consistency is the key to interview success"},
   ];
@@ -390,7 +397,7 @@ function Onboarding({user,onDone}){
           {steps.map((_,i)=><div key={i} style={{width:i===step?32:8,height:8,borderRadius:99,background:i<=step?C.accent:C.border,transition:"all .3s"}}/>)}
         </div>
         <Card style={{textAlign:"center",padding:40}}>
-          <div style={{fontSize:48,marginBottom:16}}>{["🚀","🎯","🔥"][step]}</div>
+          <div style={{fontSize:48,marginBottom:16}}>{["","→",""][step]}</div>
           <h2 style={{color:C.text,margin:"0 0 8px",fontSize:22}}>{steps[step].title}</h2>
           <p style={{color:C.muted,margin:"0 0 28px",fontSize:14}}>{steps[step].sub}</p>
           {step===0&&(
@@ -417,7 +424,7 @@ function Onboarding({user,onDone}){
           )}
           <div style={{display:"flex",gap:10,justifyContent:"center"}}>
             {step>0&&<Btn variant="secondary" onClick={()=>setStep(s=>s-1)}>← Back</Btn>}
-            <Btn onClick={step<2?()=>setStep(s=>s+1):finish} disabled={saving}>{step<2?"Continue →":saving?"Saving…":"Start Practicing 🚀"}</Btn>
+            <Btn onClick={step<2?()=>setStep(s=>s+1):finish} disabled={saving}>{step<2?"Continue →":saving?"Saving…":"Start Practicing"}</Btn>
           </div>
         </Card>
       </div>
@@ -463,7 +470,7 @@ function PricingModal({onClose,userData,onPlanUpgrade}){
   if(payStep==="success") return(
     <Modal title="" onClose={onClose} width={440}>
       <div style={{textAlign:"center",padding:"20px 0"}}>
-        <div style={{fontSize:60,marginBottom:16}}>🎉</div>
+        <div style={{fontSize:60,marginBottom:16}}></div>
         <h2 style={{color:C.green,margin:"0 0 8px"}}>Payment Successful!</h2>
         <p style={{color:C.muted,marginBottom:24}}>Welcome to <strong style={{color:PLANS[selected].color}}>{PLANS[selected].name}</strong>. All premium features are now unlocked.</p>
         <Btn full onClick={onClose}>Start Using Premium Features →</Btn>
@@ -510,7 +517,7 @@ function PricingModal({onClose,userData,onPlanUpgrade}){
               <div><div style={{fontWeight:700,color:C.text}}>{PLANS[selected].name} Plan</div><div style={{fontSize:12,color:C.muted}}>{billing==="annual"?"Billed annually":"Billed monthly"}</div></div>
               <div style={{fontSize:22,fontWeight:900,color:PLANS[selected].color}}>${price(selected)}<span style={{fontSize:13,color:C.muted}}>/mo</span></div>
             </div>
-            {billing==="annual"&&<div style={{marginTop:10,padding:"7px 12px",background:C.green+"15",borderRadius:8,fontSize:12,color:C.green}}>🎉 You save ${Math.round(PLANS[selected].price*12*.2)} per year with annual billing</div>}
+            {billing==="annual"&&<div style={{marginTop:10,padding:"7px 12px",background:C.green+"15",borderRadius:8,fontSize:12,color:C.green}}> You save ${Math.round(PLANS[selected].price*12*.2)} per year with annual billing</div>}
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:20}}>
             <Input label="CARDHOLDER NAME" value={cardName} onChange={e=>setCardName(e.target.value)} placeholder="Jane Smith" error={cardErr.name}/>
@@ -521,7 +528,7 @@ function PricingModal({onClose,userData,onPlanUpgrade}){
             </div>
           </div>
           <div style={{padding:"10px 14px",background:C.green+"10",border:`1px solid ${C.green}22`,borderRadius:8,fontSize:12,color:C.muted,marginBottom:16}}>
-            🔒 Demo UI — no real charges. Card data is not stored or transmitted.
+             Demo UI — no real charges. Card data is not stored or transmitted.
           </div>
           <div style={{display:"flex",gap:10}}>
             <Btn variant="secondary" onClick={()=>setPayStep("plans")}>← Back</Btn>
@@ -540,16 +547,16 @@ function PricingModal({onClose,userData,onPlanUpgrade}){
 // ─────────────────────────────────────────────────────────────────────────────
 const NAV=[
   {id:"dashboard",  label:"Dashboard",       icon:"⬡"},
-  {id:"resume",     label:"Resume Analysis", icon:"📄"},
-  {id:"interview",  label:"Mock Interview",  icon:"🎤"},
-  {id:"gaps",       label:"Skill Gaps",      icon:"🎯"},
-  {id:"jdmatch",    label:"JD Matcher",      icon:"🔗"},
-  {id:"coach",      label:"AI Career Coach", icon:"💬"},
-  {id:"cover",      label:"Cover Letter",    icon:"✉️"},
-  {id:"history",    label:"Session History", icon:"📋"},
-  {id:"achievements",label:"Achievements",  icon:"🏆"},
-  {id:"analytics",  label:"Analytics",       icon:"📊"},
-  {id:"settings",   label:"Settings",        icon:"⚙️"},
+  {id:"resume",     label:"Resume Analysis", icon:"→"},
+  {id:"interview",  label:"Mock Interview",  icon:""},
+  {id:"gaps",       label:"Skill Gaps",      icon:""},
+  {id:"jdmatch",    label:"JD Matcher",      icon:""},
+  {id:"coach",      label:"AI Career Coach", icon:""},
+  {id:"cover",      label:"Cover Letter",    icon:""},
+  {id:"history",    label:"Session History", icon:""},
+  {id:"achievements",label:"Achievements",  icon:""},
+  {id:"analytics",  label:"Analytics",      icon:""},
+  {id:"settings",   label:"Settings",       icon:""},
 ];
 
 function Sidebar({active,setActive,user,userData,onLogout,onUpgrade}){
@@ -561,7 +568,7 @@ function Sidebar({active,setActive,user,userData,onLogout,onUpgrade}){
         <div style={{fontSize:9,color:C.muted,letterSpacing:2}}>INTERVIEW PREP</div>
       </div>
       <div style={{background:C.card,borderRadius:12,padding:"10px 12px",marginBottom:12,display:"flex",gap:12,alignItems:"center"}}>
-        <div style={{textAlign:"center"}}><div style={{fontSize:18}}>{(userData.streak||0)>=3?"🔥":"⭐"}</div><div style={{fontSize:11,color:C.amber,fontWeight:700}}>{userData.streak||0}d</div></div>
+        <div style={{textAlign:"center"}}><div style={{fontSize:18}}>{""}</div><div style={{fontSize:11,color:C.amber,fontWeight:700}}>{userData.streak||0}d</div></div>
         <div style={{flex:1}}><div style={{fontSize:11,color:C.muted,marginBottom:4}}>Today: {userData.todayCount||0}/{userData.dailyGoal||3}</div><ProgressBar value={userData.todayCount||0} max={userData.dailyGoal||3} color={C.amber} h={5}/></div>
       </div>
       <div style={{flex:1,display:"flex",flexDirection:"column",gap:1}}>
@@ -571,7 +578,7 @@ function Sidebar({active,setActive,user,userData,onLogout,onUpgrade}){
             <button key={n.id} onClick={()=>setActive(n.id)}
               style={{display:"flex",alignItems:"center",gap:9,padding:"8px 10px",borderRadius:9,border:"none",background:active===n.id?C.accent+"22":"transparent",color:active===n.id?C.accent:locked?C.muted+"80":C.muted,cursor:"pointer",fontSize:12.5,fontWeight:active===n.id?700:400,textAlign:"left",transition:"all .18s",justifyContent:"space-between"}}>
               <div style={{display:"flex",alignItems:"center",gap:9}}><span style={{fontSize:13}}>{n.icon}</span>{n.label}</div>
-              {locked&&<span style={{fontSize:10}}>🔒</span>}
+              {locked&&<span style={{fontSize:10,color:C.muted}}>Lock</span>}
             </button>
           );
         })}
@@ -604,11 +611,11 @@ function Dashboard({userData,setActive,user,onUpgrade}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <div><h1 style={{fontSize:26,fontWeight:900,color:C.text,margin:0}}>Welcome back, {user.name.split(" ")[0]} 👋</h1><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Your AI-powered interview command center</p></div>
+        <div><h1 style={{fontSize:26,fontWeight:900,color:C.text,margin:0}}>Welcome back, {user.name.split(" ")[0]} </h1><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Your AI-powered interview command center</p></div>
         {userData.plan==="free"&&<div onClick={onUpgrade} style={{background:`linear-gradient(135deg,${C.accent},${C.purple})`,borderRadius:12,padding:"10px 18px",cursor:"pointer",textAlign:"center"}}><div style={{fontSize:12,color:"rgba(255,255,255,.7)"}}>Unlock all features</div><div style={{fontSize:15,fontWeight:800,color:"#fff"}}>Upgrade to Pro →</div></div>}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
-        {[{label:"Skills Found",value:userData.skills?.length||0,color:C.accent,icon:"🧩"},{label:"Sessions",value:sessions.length,color:C.green,icon:"✅"},{label:"Avg Score",value:avg!=null?`${avg}%`:"—",color:C.amber,icon:"⭐"},{label:"Day Streak",value:`${userData.streak||0}🔥`,color:C.red,icon:""}].map(s=>(
+        {[{label:"Skills Found",value:userData.skills?.length||0,color:C.accent,icon:"+"},{label:"Sessions",value:sessions.length,color:C.green,icon:"+"},{label:"Avg Score",value:avg!=null?`${avg}%`:"—",color:C.amber,icon:"+"},{label:"Day Streak",value:`${userData.streak||0}d`,color:C.red,icon:""}].map(s=>(
           <Card key={s.label} style={{padding:18}}><div style={{fontSize:22,marginBottom:6}}>{s.icon}</div><div style={{fontSize:28,fontWeight:900,color:s.color}}>{s.value}</div><div style={{fontSize:12,color:C.muted,marginTop:3}}>{s.label}</div></Card>
         ))}
       </div>
@@ -620,7 +627,7 @@ function Dashboard({userData,setActive,user,onUpgrade}){
         <ProgressBar value={userData.todayCount||0} max={userData.dailyGoal||3} color={(userData.todayCount||0)>=(userData.dailyGoal||3)?C.green:C.amber} h={10}/>
       </Card>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
-        {[{id:"resume",icon:"📄",title:"Resume Analysis",desc:"NLP skill extraction + ATS scoring",color:C.accent},{id:"interview",icon:"🎤",title:"Mock Interview",desc:"ML-scored with ideal answer reveal",color:C.green},{id:"jdmatch",icon:"🔗",title:"JD Matcher",desc:"AI fit score against any job posting",color:C.amber},{id:"coach",icon:"💬",title:"AI Career Coach",desc:"Personalized career advice anytime",color:C.purple},{id:"cover",icon:"✉️",title:"Cover Letter",desc:"AI-generated tailored letter",color:C.red},{id:"gaps",icon:"🎯",title:"Skill Gap Analysis",desc:"Data mining against role requirements",color:C.cyan}].map(item=>(
+        {[{id:"resume",icon:"→",title:"Resume Analysis",desc:"NLP skill extraction + ATS scoring",color:C.accent},{id:"interview",icon:"→",title:"Mock Interview",desc:"ML-scored with ideal answer reveal",color:C.green},{id:"jdmatch",icon:"→",title:"JD Matcher",desc:"AI fit score against any job posting",color:C.amber},{id:"coach",icon:"→",title:"AI Career Coach",desc:"Personalized career advice anytime",color:C.purple},{id:"cover",icon:"→",title:"Cover Letter",desc:"AI-generated tailored letter",color:C.red},{id:"gaps",icon:"→",title:"Skill Gap Analysis",desc:"Data mining against role requirements",color:C.cyan}].map(item=>(
           <Card key={item.id} hover onClick={()=>setActive(item.id)} style={{padding:18}}><div style={{fontSize:26,marginBottom:8}}>{item.icon}</div><div style={{fontWeight:700,color:C.text,fontSize:14,marginBottom:4}}>{item.title}</div><div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>{item.desc}</div></Card>
         ))}
       </div>
@@ -679,24 +686,24 @@ function ResumeScreen({userData,onResumeAnalyzed}){
   };
 
   const TAB=(id,lbl,icon)=>(
-    <button onClick={()=>setTab(id)} style={{padding:"8px 20px",borderRadius:9,border:`1px solid ${tab===id?C.accent:C.border}`,background:tab===id?C.accent+"18":"transparent",color:tab===id?C.accent:C.muted,cursor:"pointer",fontSize:13,fontWeight:tab===id?700:400,transition:"all .2s"}}>{icon} {lbl}</button>
+    <button onClick={()=>setTab(id)} style={{padding:"8px 20px",borderRadius:9,border:`1px solid ${tab===id?C.accent:C.border}`,background:tab===id?C.accent+"18":"transparent",color:tab===id?C.accent:C.muted,cursor:"pointer",fontSize:13,fontWeight:tab===id?700:400,transition:"all .2s"}}>{icon?`${icon} `:""}{lbl}</button>
   );
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Resume Analysis</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Upload PDF/DOCX or paste text — AI extracts skills, assesses your profile & ATS score</p></div>
-      <div style={{display:"flex",gap:8}}>{TAB("upload","Upload File","📁")}{TAB("paste","Paste Text","📋")}</div>
+      <div style={{display:"flex",gap:8}}>{TAB("upload","Upload File","")}{TAB("paste","Paste Text","")}</div>
       {tab==="upload"&&(
         <Card>
           <div onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)processFile(f);}} onClick={()=>fileRef.current?.click()}
             style={{border:`2px dashed ${C.border}`,borderRadius:12,padding:"32px 20px",textAlign:"center",background:C.surface,cursor:"pointer"}}>
             <input ref={fileRef} type="file" accept=".pdf,.docx,.doc" style={{display:"none"}} onChange={e=>{if(e.target.files[0])processFile(e.target.files[0]);e.target.value="";}}/>
-            {busy?<><div style={{fontSize:28,marginBottom:8}}>⏳</div><div style={{color:C.accent}}>Extracting text from {fileName}…</div></>
-             :fileName&&text?<><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{color:C.green,fontWeight:700}}>{fileName}</div><div style={{fontSize:12,color:C.muted,marginTop:4}}>{text.length.toLocaleString()} chars · Click to replace</div></>
-             :<><div style={{fontSize:36,marginBottom:10}}>📁</div><div style={{fontWeight:700,color:C.text,marginBottom:6}}>Drop resume here or click to browse</div><div style={{color:C.muted,fontSize:13}}>PDF · DOCX · DOC</div></>}
+            {busy?<><div style={{color:C.accent}}>Extracting text from {fileName}…</div></>
+             :fileName&&text?<><div style={{color:C.green,fontWeight:700}}>{fileName}</div><div style={{fontSize:12,color:C.muted,marginTop:4}}>{text.length.toLocaleString()} chars · Click to replace</div></>
+             :<><div style={{fontSize:36,marginBottom:10}}></div><div style={{fontWeight:700,color:C.text,marginBottom:6}}>Drop resume here or click to browse</div><div style={{color:C.muted,fontSize:13}}>PDF · DOCX · DOC</div></>}
           </div>
           <div style={{display:"flex",justifyContent:"flex-end",marginTop:14}}>
-            <Btn onClick={analyze} disabled={loading||!text||busy}>{loading?"Analyzing…":"🔍 Analyze Resume"}</Btn>
+            <Btn onClick={analyze} disabled={loading||!text||busy}>{loading?"Analyzing...":"Analyze Resume"}</Btn>
           </div>
         </Card>
       )}
@@ -706,11 +713,11 @@ function ResumeScreen({userData,onResumeAnalyzed}){
             style={{width:"100%",height:220,background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:14,color:C.text,fontSize:14,lineHeight:1.6,resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
           <div style={{display:"flex",justifyContent:"space-between",marginTop:10}}>
             <span style={{fontSize:12,color:C.muted}}>{text.length.toLocaleString()} chars</span>
-            <Btn onClick={analyze} disabled={loading||text.trim().length<50}>{loading?"Analyzing…":"🔍 Analyze Resume"}</Btn>
+            <Btn onClick={analyze} disabled={loading||text.trim().length<50}>{loading?"Analyzing...":"Analyze Resume"}</Btn>
           </div>
         </Card>
       )}
-      {loading&&<Card style={{textAlign:"center",padding:28}}><div style={{fontSize:32,marginBottom:8}}>🤖</div><div style={{color:C.accent,fontWeight:600}}>Analyzing your resume…</div><div style={{color:C.muted,fontSize:13,marginTop:4}}>Running NLP extraction · Assessing profile · Scoring ATS compatibility</div></Card>}
+      {loading&&<Card style={{textAlign:"center",padding:28}}><div style={{color:C.accent,fontWeight:600}}>Analyzing your resume…</div><div style={{color:C.muted,fontSize:13,marginTop:4}}>Running NLP extraction · Assessing profile · Scoring ATS compatibility</div></Card>}
       {result&&!loading&&(
         <>
           <Card><h3 style={{margin:"0 0 12px",color:C.text}}>Extracted Skills <Badge color={C.green}>{result.skillCount}</Badge></h3><div style={{display:"flex",flexWrap:"wrap",gap:7}}>{result.skills?.map(s=><Badge key={s}>{s}</Badge>)}</div></Card>
@@ -724,7 +731,7 @@ function ResumeScreen({userData,onResumeAnalyzed}){
             <div style={{display:"flex",flexDirection:"column",gap:14}}>
               <Card style={{padding:18}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><h3 style={{margin:0,color:C.text,fontSize:15}}>ATS Score</h3><ScoreRing score={result.atsScore||75} size={56}/></div>
-                {result.atsIssues?.map((s,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:6}}><span style={{color:C.amber}}>⚠</span><span style={{fontSize:12,color:C.text}}>{s}</span></div>)}
+                {result.atsIssues?.map((s,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:6}}><span style={{color:C.amber}}></span><span style={{fontSize:12,color:C.text}}>{s}</span></div>)}
               </Card>
               <Card>
                 <h3 style={{margin:"0 0 12px",color:C.text}}>Improvements</h3>
@@ -826,7 +833,7 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
   if(phase==="setup") return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Mock Interview</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>ML-scored · Voice support · Timed mode · Ideal answer reveal</p></div>
-      {!canInterview&&<div style={{padding:"14px 18px",background:C.red+"15",border:`1px solid ${C.red}33`,borderRadius:10,color:C.red,fontSize:14}}>⚠️ You've used all 3 free interviews this month. <strong style={{cursor:"pointer",textDecoration:"underline"}} onClick={onUpgrade}>Upgrade to Pro</strong> for unlimited.</div>}
+      {!canInterview&&<div style={{padding:"14px 18px",background:C.red+"15",border:`1px solid ${C.red}33`,borderRadius:10,color:C.red,fontSize:14}}>️ You've used all 3 free interviews this month. <strong style={{cursor:"pointer",textDecoration:"underline"}} onClick={onUpgrade}>Upgrade to Pro</strong> for unlimited.</div>}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
         <Card>
           <h3 style={{margin:"0 0 12px",color:C.text}}>Select Role</h3>
@@ -841,14 +848,14 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
         <Card>
           <h3 style={{margin:"0 0 14px",color:C.text}}>Options</h3>
           <div style={{borderBottom:`1px solid ${C.border}`,paddingBottom:12,marginBottom:12}}>
-            <Toggle value={voiceMode} onChange={()=>setVoiceMode(v=>!v)} label="🎤 Voice Mode" desc="Speak your answers out loud"/>
-            <Toggle value={timedMode} onChange={()=>setTimedMode(v=>!v)} label="⏱️ Timed Mode" desc="2 minutes per question"/>
+            <Toggle value={voiceMode} onChange={()=>setVoiceMode(v=>!v)} label="Voice Mode" desc="Speak your answers out loud"/>
+            <Toggle value={timedMode} onChange={()=>setTimedMode(v=>!v)} label="️ Timed Mode" desc="2 minutes per question"/>
           </div>
           <div style={{padding:"12px 0",marginBottom:16}}>
-            <div style={{fontWeight:600,color:C.text,fontSize:14}}>📋 {questions.length} Questions</div>
+            <div style={{fontWeight:600,color:C.text,fontSize:14}}> {questions.length} Questions</div>
             <div style={{fontSize:12,color:C.muted,marginTop:2}}>AI scored · Ideal answer revealed after each</div>
           </div>
-          {userData.plan==="free"&&<div style={{fontSize:12,color:C.amber,marginBottom:14}}>⚡ Free plan: {3-(userData.interviewsThisMonth||0)} interviews remaining</div>}
+          {userData.plan==="free"&&<div style={{fontSize:12,color:C.amber,marginBottom:14}}>Free plan: {3-(userData.interviewsThisMonth||0)} interviews remaining</div>}
           <Btn full onClick={startInterview} disabled={!canInterview}>Start Interview →</Btn>
         </Card>
       </div>
@@ -859,7 +866,7 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
     const avg=Math.round(scores.reduce((a,s)=>a+s.score,0)/scores.length);
     return(
       <div style={{display:"flex",flexDirection:"column",gap:18}}>
-        <Card style={{textAlign:"center",padding:36}}><div style={{fontSize:48,marginBottom:12}}>{avg>=70?"🎉":"💪"}</div><h2 style={{color:C.text,margin:"0 0 4px"}}>Session Complete!</h2><div style={{fontSize:52,fontWeight:900,color:C.green}}>{avg}%</div><p style={{color:C.muted}}>Average · {role}</p><Btn onClick={()=>{setPhase("setup");setQIdx(0);setScores([]);setCurrent(null);setAnswer("");}}>New Session</Btn></Card>
+        <Card style={{textAlign:"center",padding:36}}><div style={{fontSize:48,marginBottom:12}}></div><h2 style={{color:C.text,margin:"0 0 4px"}}>Session Complete!</h2><div style={{fontSize:52,fontWeight:900,color:C.green}}>{avg}%</div><p style={{color:C.muted}}>Average · {role}</p><Btn onClick={()=>{setPhase("setup");setQIdx(0);setScores([]);setCurrent(null);setAnswer("");}}>New Session</Btn></Card>
         <Card><h3 style={{margin:"0 0 16px",color:C.text}}>Breakdown</h3>{scores.map((s,i)=>(
           <div key={i} style={{padding:"14px 0",borderBottom:i<scores.length-1?`1px solid ${C.border}`:"none"}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{fontSize:12,color:C.muted}}>Q{i+1}</span><span style={{fontWeight:800,color:s.score>=70?C.green:s.score>=40?C.amber:C.red}}>{s.score}/100</span></div>
@@ -881,12 +888,12 @@ function InterviewScreen({userData,onSessionSaved,onUpgrade}){
           <div style={{display:"flex",gap:4}}>{questions.map((_,i)=><div key={i} style={{width:7,height:7,borderRadius:"50%",background:i<qIdx?C.green:i===qIdx?C.accent:C.border}}/>)}</div>
         </div>
       </div>
-      <Card><div style={{fontSize:11,fontWeight:700,color:C.accent,letterSpacing:1,marginBottom:10}}>QUESTION {qIdx+1}</div><p style={{fontSize:17,color:C.text,margin:0,lineHeight:1.65}}>{q?.q}</p>{voiceMode&&<button onClick={()=>speak(q?.q)} style={{marginTop:10,background:"none",border:`1px solid ${C.border}`,borderRadius:7,padding:"5px 12px",color:C.muted,cursor:"pointer",fontSize:12}}>🔊 Read aloud</button>}</Card>
+      <Card><div style={{fontSize:11,fontWeight:700,color:C.accent,letterSpacing:1,marginBottom:10}}>QUESTION {qIdx+1}</div><p style={{fontSize:17,color:C.text,margin:0,lineHeight:1.65}}>{q?.q}</p>{voiceMode&&<button onClick={()=>speak(q?.q)} style={{marginTop:10,background:"none",border:`1px solid ${C.border}`,borderRadius:7,padding:"5px 12px",color:C.muted,cursor:"pointer",fontSize:12}}> Read aloud</button>}</Card>
       {phase==="question"&&(
         <Card>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <label style={{fontSize:11,fontWeight:700,color:C.muted}}>YOUR ANSWER</label>
-            {voiceMode&&<button onClick={listening?stopListening:startListening} style={{padding:"5px 12px",borderRadius:7,border:`1px solid ${listening?C.red:C.green}`,background:listening?C.red+"15":C.green+"15",color:listening?C.red:C.green,cursor:"pointer",fontSize:12,fontWeight:700}}>{listening?"⏹ Stop":"🎤 Speak"}</button>}
+            {voiceMode&&<button onClick={listening?stopListening:startListening} style={{padding:"5px 12px",borderRadius:7,border:`1px solid ${listening?C.red:C.green}`,background:listening?C.red+"15":C.green+"15",color:listening?C.red:C.green,cursor:"pointer",fontSize:12,fontWeight:700}}>{listening?"Stop":"Speak"}</button>}
           </div>
           {listening&&<div style={{fontSize:12,color:C.red,fontWeight:600,marginBottom:6}}>● Recording…</div>}
           <textarea value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={voiceMode?"Click Speak or type…":"Type your answer…"}
@@ -919,7 +926,7 @@ function JDMatcher({userData,onJDMatched}){
   const [result,setResult]=useState(userData.lastJDResult||null); 
   const [loading,setLoading]=useState(false);
   const match=async()=>{
-    if(!userData.resumeText&&!userData.skills?.length){alert("⚠️ Please analyze your resume first before using JD Matcher.");return;}
+    if(!userData.resumeText&&!userData.skills?.length){alert("Please analyze your resume first before using JD Matcher.");return;}
     if(!jd.trim()){alert("Please paste a job description.");return;}
     setLoading(true);
     try{
@@ -928,7 +935,7 @@ function JDMatcher({userData,onJDMatched}){
     }catch(e){
       const msg=e.message||"";
       if(msg.includes("No resume")||msg.includes("400")){
-        alert("⚠️ No resume found. Please go to Resume Analysis and analyze your resume first.");
+        alert("No resume found. Please go to Resume Analysis and analyze your resume first.");
       } else {
         alert("Analysis failed: "+msg);
       }
@@ -939,13 +946,13 @@ function JDMatcher({userData,onJDMatched}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>JD Matcher</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Paste any job posting — AI scores your fit, highlights matched and missing skills</p></div>
-      {!userData.resumeText&&<div style={{padding:"12px 16px",background:C.amber+"15",border:`1px solid ${C.amber}33`,borderRadius:10,color:C.amber,fontSize:14}}>⚠️ Analyze your resume first.</div>}
+      {!userData.resumeText&&<div style={{padding:"12px 16px",background:C.amber+"15",border:`1px solid ${C.amber}33`,borderRadius:10,color:C.amber,fontSize:14}}>Analyze your resume first.</div>}
       <Card><label style={{fontSize:11,fontWeight:700,color:C.muted,display:"block",marginBottom:8}}>JOB DESCRIPTION</label>
         <textarea value={jd} onChange={e=>setJd(e.target.value)} placeholder="Paste the full job description…"
           style={{width:"100%",height:200,background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:14,color:C.text,fontSize:14,lineHeight:1.6,resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
-        <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}><Btn onClick={match} disabled={loading||!jd.trim()||!userData.resumeText}>{loading?"Matching…":"🔗 Match My Resume"}</Btn></div>
+        <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}><Btn onClick={match} disabled={loading||!jd.trim()||!userData.resumeText}>{loading?"Matching...":"Match My Resume"}</Btn></div>
       </Card>
-      {loading&&<Card style={{textAlign:"center",padding:28}}><div style={{fontSize:32,marginBottom:8}}>🔍</div><div style={{color:C.accent,fontWeight:600}}>Comparing resume to job description…</div></Card>}
+      {loading&&<Card style={{textAlign:"center",padding:28}}><div style={{color:C.accent,fontWeight:600}}>Comparing resume to job description…</div></Card>}
       {result&&!loading&&(
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           <Card style={{textAlign:"center",padding:30}}><div style={{fontSize:60,fontWeight:900,color:sc(result.matchScore)}}>{result.matchScore}%</div><Badge color={sc(result.matchScore)}>{result.verdict}</Badge><p style={{color:C.muted,marginTop:12,fontSize:14}}>{result.recommendation}</p></Card>
@@ -955,7 +962,7 @@ function JDMatcher({userData,onJDMatched}){
             <Card><h3 style={{margin:"0 0 12px",color:C.text}}>Strengths</h3>{result.strengths?.map((s,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:7}}><span style={{color:C.green}}>✓</span><span style={{fontSize:13,color:C.text,lineHeight:1.5}}>{s}</span></div>)}</Card>
             <Card><h3 style={{margin:"0 0 12px",color:C.text}}>Concerns</h3>{result.gaps?.map((s,i)=><div key={i} style={{display:"flex",gap:8,marginBottom:7}}><span style={{color:C.amber}}>→</span><span style={{fontSize:13,color:C.text,lineHeight:1.5}}>{s}</span></div>)}</Card>
           </div>
-          {result.tailoredTip&&<Card style={{borderColor:C.purple+"44",background:C.purple+"08"}}><div style={{fontSize:11,fontWeight:700,color:C.purple,marginBottom:6}}>💡 TAILORED TIP</div><p style={{margin:0,fontSize:14,color:C.text,lineHeight:1.6}}>{result.tailoredTip}</p></Card>}
+          {result.tailoredTip&&<Card style={{borderColor:C.purple+"44",background:C.purple+"08"}}><div style={{fontSize:11,fontWeight:700,color:C.purple,marginBottom:6}}> TAILORED TIP</div><p style={{margin:0,fontSize:14,color:C.text,lineHeight:1.6}}>{result.tailoredTip}</p></Card>}
         </div>
       )}
     </div>
@@ -967,7 +974,7 @@ function JDMatcher({userData,onJDMatched}){
 // ─────────────────────────────────────────────────────────────────────────────
 function CareerCoach({userData,onUpgrade}){
   const locked=userData.plan==="free";
-  const [msgs,setMsgs]=useState([{role:"assistant",content:`Hi! I'm your AI Career Coach 👋\n\nI know your profile — ${userData.skills?.length||0} skills${userData.recommendedRole?`, targeting ${userData.recommendedRole}`:""}${userData.level?`, ${userData.level} level`:""}.\n\nAsk me anything about interviews, career strategy, salary negotiation, or what to study next!`}]);
+  const [msgs,setMsgs]=useState([{role:"assistant",content:`Hi! I'm your AI Career Coach \n\nI know your profile — ${userData.skills?.length||0} skills${userData.recommendedRole?`, targeting ${userData.recommendedRole}`:""}${userData.level?`, ${userData.level} level`:""}.\n\nAsk me anything about interviews, career strategy, salary negotiation, or what to study next!`}]);
   const [input,setInput]=useState(""); const [loading,setLoading]=useState(false); const bottomRef=useRef();
   const STARTERS=["How do I negotiate my salary?","What should I study to land my target role?","How do I answer 'Tell me about yourself'?","How do I stand out in a technical interview?","What projects should I add to my portfolio?"];
   useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"});},[msgs]);
@@ -975,7 +982,7 @@ function CareerCoach({userData,onUpgrade}){
   if(locked) return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>AI Career Coach</h2></div>
-      <Card style={{textAlign:"center",padding:48}}><div style={{fontSize:48,marginBottom:14}}>💬</div><h3 style={{color:C.text,margin:"0 0 8px"}}>Pro Feature</h3><p style={{color:C.muted,marginBottom:20,fontSize:14}}>AI Career Coach is available on the Pro plan. Upgrade to get personalized career advice, interview strategy, and guidance tailored to your profile.</p><Btn onClick={onUpgrade}>Upgrade to Pro — $9/mo →</Btn></Card>
+      <Card style={{textAlign:"center",padding:48}}><h3 style={{color:C.text,margin:"0 0 8px"}}>Pro Feature</h3><p style={{color:C.muted,marginBottom:20,fontSize:14}}>AI Career Coach is available on the Pro plan. Upgrade to get personalized career advice, interview strategy, and guidance tailored to your profile.</p><Btn onClick={onUpgrade}>Upgrade to Pro — $9/mo →</Btn></Card>
     </div>
   );
 
@@ -1023,7 +1030,7 @@ function CoverLetter({userData,onLetterGenerated}){
   const [letter,setLetter]=useState(userData.lastCLLetter||""); 
   const [loading,setLoading]=useState(false);
   const generate=async()=>{
-    if(!userData.resumeText&&!userData.skills?.length){alert("⚠️ Please go to Resume Analysis and analyze your resume first.");return;}
+    if(!userData.resumeText&&!userData.skills?.length){alert("Please go to Resume Analysis and analyze your resume first.");return;}
     if(!jd.trim()){alert("Please add a job description.");return;}
     setLoading(true);
     try{
@@ -1033,7 +1040,7 @@ function CoverLetter({userData,onLetterGenerated}){
     }catch(e){
       const msg=e.message||"";
       if(msg.includes("No resume")||msg.includes("400")){
-        alert("⚠️ No resume found. Please go to Resume Analysis first.");
+        alert("No resume found. Please go to Resume Analysis first.");
       } else {
         alert("Failed to generate: "+msg);
       }
@@ -1043,7 +1050,7 @@ function CoverLetter({userData,onLetterGenerated}){
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Cover Letter Generator</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>AI generates a tailored cover letter from your resume and the job description</p></div>
-      {!userData.resumeText&&<div style={{padding:"12px 16px",background:C.amber+"15",border:`1px solid ${C.amber}33`,borderRadius:10,color:C.amber,fontSize:14}}>⚠️ Upload resume first.</div>}
+      {!userData.resumeText&&<div style={{padding:"12px 16px",background:C.amber+"15",border:`1px solid ${C.amber}33`,borderRadius:10,color:C.amber,fontSize:14}}>Upload resume first.</div>}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
         <Card>
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -1056,16 +1063,16 @@ function CoverLetter({userData,onLetterGenerated}){
             <div><div style={{fontSize:11,fontWeight:700,color:C.muted,marginBottom:7}}>JOB DESCRIPTION</div>
               <textarea value={jd} onChange={e=>setJd(e.target.value)} placeholder="Paste JD here…" style={{width:"100%",height:180,background:C.surface,border:`1px solid ${C.border}`,borderRadius:10,padding:12,color:C.text,fontSize:13,lineHeight:1.6,resize:"vertical",fontFamily:"inherit",boxSizing:"border-box"}}/>
             </div>
-            <Btn full onClick={generate} disabled={loading||!jd.trim()||!userData.resumeText}>{loading?"Writing…":"✉️ Generate Letter"}</Btn>
+            <Btn full onClick={generate} disabled={loading||!jd.trim()||!userData.resumeText}>{loading?"Writing...":"Generate Letter"}</Btn>
           </div>
         </Card>
         <Card style={{display:"flex",flexDirection:"column",padding:0,overflow:"hidden"}}>
           <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <span style={{fontWeight:700,color:C.text,fontSize:14}}>Generated Letter</span>
-            {letter&&<button onClick={()=>navigator.clipboard.writeText(letter)} style={{padding:"5px 10px",borderRadius:7,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,cursor:"pointer",fontSize:12}}>📋 Copy</button>}
+            {letter&&<button onClick={()=>navigator.clipboard.writeText(letter)} style={{padding:"5px 10px",borderRadius:7,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,cursor:"pointer",fontSize:12}}> Copy</button>}
           </div>
           <div style={{flex:1,padding:18,overflowY:"auto",minHeight:300}}>
-            {loading&&<div style={{textAlign:"center",padding:"40px 0"}}><div style={{fontSize:28,marginBottom:8}}>✍️</div><div style={{color:C.accent,fontWeight:600}}>Writing your cover letter…</div></div>}
+            {loading&&<div style={{textAlign:"center",padding:"40px 0"}}><div style={{fontSize:28,marginBottom:8}}>️</div><div style={{color:C.accent,fontWeight:600}}>Writing your cover letter…</div></div>}
             {!loading&&!letter&&<div style={{color:C.muted,fontSize:14,textAlign:"center",marginTop:60}}>Your letter will appear here</div>}
             {letter&&!loading&&<p style={{fontSize:14,color:C.text,lineHeight:1.8,margin:0,whiteSpace:"pre-wrap"}}>{letter}</p>}
           </div>
@@ -1133,7 +1140,7 @@ function GapsScreen({userData,onCoverageUpdate}){
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Skill Gap Analysis</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>Data mining against role requirements → personalized AI learning plan</p></div>
       <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{Object.keys(ROLE_REQS).map(r=><button key={r} onClick={()=>{setRole(r);setPlan(null);setGapResult(null);}} style={{padding:"7px 14px",borderRadius:8,border:`1px solid ${role===r?C.accent:C.border}`,background:role===r?C.accent+"15":"transparent",color:role===r?C.accent:C.muted,cursor:"pointer",fontSize:13,fontWeight:role===r?700:400}}>{r}</button>)}</div>
-      {!userData.skills?.length&&<div style={{padding:"12px 16px",background:C.amber+"15",border:`1px solid ${C.amber}33`,borderRadius:10,color:C.amber,fontSize:14}}>⚠️ No resume analyzed yet.</div>}
+      {!userData.skills?.length&&<div style={{padding:"12px 16px",background:C.amber+"15",border:`1px solid ${C.amber}33`,borderRadius:10,color:C.amber,fontSize:14}}>No resume analyzed yet.</div>}
       <Card>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
           <h3 style={{margin:0,color:C.text}}>Coverage — {role}</h3>
@@ -1144,7 +1151,7 @@ function GapsScreen({userData,onCoverageUpdate}){
       </Card>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
         <Card><h3 style={{margin:"0 0 12px",color:C.green}}>✓ You Have</h3><div style={{display:"flex",flexWrap:"wrap",gap:7}}>{present.length?present.map(s=><Badge key={s} color={C.green}>{s}</Badge>):<span style={{color:C.muted,fontSize:14}}>None matched</span>}</div></Card>
-        <Card><h3 style={{margin:"0 0 12px",color:C.red}}>✗ To Develop</h3><div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:14}}>{missing.map(s=><Badge key={s} color={C.red}>{s}</Badge>)}</div>{missing.length>0&&<Btn onClick={getPlan} disabled={loading}>{loading?"Generating…":"🤖 Get AI Learning Plan"}</Btn>}</Card>
+        <Card><h3 style={{margin:"0 0 12px",color:C.red}}>✗ To Develop</h3><div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:14}}>{missing.map(s=><Badge key={s} color={C.red}>{s}</Badge>)}</div>{missing.length>0&&<Btn onClick={getPlan} disabled={loading}>{loading?"Generating...":"Get AI Learning Plan"}</Btn>}</Card>
       </div>
       {plan&&(
         <Card>
@@ -1186,14 +1193,14 @@ function SessionHistory({userData,onUpgrade}){
   if(userData.plan==="free") return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Session History</h2>
-      <Card style={{textAlign:"center",padding:48}}><div style={{fontSize:48,marginBottom:14}}>📋</div><h3 style={{color:C.text,margin:"0 0 8px"}}>Pro Feature</h3><p style={{color:C.muted,marginBottom:20,fontSize:14}}>Full session history with question-level review is a Pro feature.</p><Btn onClick={onUpgrade}>Upgrade to Pro →</Btn></Card>
+      <Card style={{textAlign:"center",padding:48}}><h3 style={{color:C.text,margin:"0 0 8px"}}>Pro Feature</h3><p style={{color:C.muted,marginBottom:20,fontSize:14}}>Full session history with question-level review is a Pro feature.</p><Btn onClick={onUpgrade}>Upgrade to Pro →</Btn></Card>
     </div>
   );
   const sessions=[...(userData.sessions||[])].reverse();
   return(
     <div style={{display:"flex",flexDirection:"column",gap:22}}>
       <div><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Session History</h2><p style={{color:C.muted,margin:"4px 0 0",fontSize:14}}>{sessions.length} sessions stored in database</p></div>
-      {!sessions.length&&<Card style={{textAlign:"center",padding:48}}><div style={{fontSize:48,marginBottom:12}}>📭</div><p style={{color:C.muted}}>No sessions yet. Start a mock interview!</p></Card>}
+      {!sessions.length&&<Card style={{textAlign:"center",padding:48}}><div style={{fontSize:48,marginBottom:12}}></div><p style={{color:C.muted}}>No sessions yet. Start a mock interview!</p></Card>}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1.6fr",gap:16,alignItems:"start"}}>
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {sessions.map((s,i)=>(
@@ -1283,7 +1290,7 @@ function Analytics({userData}){
   },[userData.sessions]);
   const sessions=userData.sessions||[];
   if(loading) return <Spinner text="Loading analytics…"/>;
-  if(!sessions.length) return(<div style={{display:"flex",flexDirection:"column",gap:22}}><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Analytics</h2><Card style={{textAlign:"center",padding:60}}><div style={{fontSize:48,marginBottom:12}}>📊</div><p style={{color:C.muted}}>Complete a mock interview to see your analytics.</p></Card></div>);
+  if(!sessions.length) return(<div style={{display:"flex",flexDirection:"column",gap:22}}><h2 style={{fontSize:24,fontWeight:900,color:C.text,margin:0}}>Analytics</h2><Card style={{textAlign:"center",padding:60}}><p style={{color:C.muted}}>Complete a mock interview to see your analytics.</p></Card></div>);
   const W=600,H=130;
   const pts=sessions.map((s,i)=>({x:sessions.length===1?W/2:(i/(sessions.length-1))*W,y:H-(s.avgScore/100)*(H-20)-10,s}));
   const pathD=pts.map((p,i)=>`${i===0?"M":"L"}${p.x},${p.y}`).join(" ");
@@ -1344,7 +1351,7 @@ function Settings({userData,user,onUpgrade,onGoalUpdate}){
           <div style={{display:"flex",gap:10,alignItems:"center"}}><Badge color={plan.color}>{plan.name}</Badge>{userData.plan==="free"&&<Btn sm onClick={onUpgrade}>Upgrade →</Btn>}</div>
         </div>
         <div style={{padding:"10px 14px",background:C.green+"10",border:`1px solid ${C.green}22`,borderRadius:8,fontSize:13,color:C.muted,marginTop:8}}>
-          ✅ Your data is securely stored in a cloud database and syncs across all your devices.
+           Your data is securely stored in a cloud database and syncs across all your devices.
         </div>
       </Card>
       <Card>
